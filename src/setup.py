@@ -31,7 +31,7 @@ setup(
     long_description=read('../README.md'),
     long_description_content_type='text/markdown',
 
-    packages=find_packages('pytest-gitcov'),
+    packages=find_packages('pytest_gitcov'),
 
     install_requires=[
         'pytest-cov',
@@ -42,6 +42,10 @@ setup(
             'pytest_gitcov = pytest_gitcov.plugin',
         ]
     },
+
+    scripts=[
+        'bin/git-py-coverage'
+    ],
 
     classifiers=[
         # complete classifier list: http://pypi.python.org/pypi?%3Aaction=list_classifiers
