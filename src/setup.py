@@ -19,12 +19,14 @@ def read(*names, **kwargs):
 
 setup(
     name='pytest-gitcov',
-    version_format='{tag}.dev{commitcount}_{gitsha}',
+    version_format='{tag}.{commitcount}',
     setup_requires=['setuptools-git-version'],
 
     licence='MIT',
     author='David James McCorrie',
+    author_email='djmccorrie@gmail.com',
 
+    url='https://github.com/machshev/pytest-git-coverage',
     description='Pytest plugin for reporting on coverage of the last git commit.',
     long_description=read('../README.md'),
     long_description_content_type='text/markdown',
