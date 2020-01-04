@@ -1,0 +1,7 @@
+#!/usr/bin/bash
+
+# -*- mode: shell-script -*-
+
+files=$(git status -s | grep -v ^D | awk '{print $2 }')
+
+echo "$files"
