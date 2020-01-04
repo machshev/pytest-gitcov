@@ -1,18 +1,55 @@
 #!/usr/bin/env python
 # -*- encoding: utf-8 -*-
 
+import io
+
+from os.path import dirname
+from os.path import join
+
 from setuptools import setup
+from setuptools import find_packages
+
+
+def read(*names, **kwargs):
+    return io.open(
+        join(dirname(__file__), *names),
+        encoding=kwargs.get('encoding', 'utf8')
+    ).read()
+
 
 setup(
-    name="pytest-gitcov",
-    packages=["pytest-gitcov"],
-    version="{tag}.dev{commitcount}+{gitsha}",
+    name='pytest-gitcov',
+    version_format='{tag}.dev{commitcount}_{gitsha}',
+    setup_requires=['setuptools-git-version'],
 
-    # the following makes a plugin available to pytest
+    licence='MIT',
+    author='David James McCorrie',
+
+    description='Pytest plugin for reporting on coverage of the last git commit.',
+    long_description=read('../README.md'),
+    long_description_content_type='text/markdown',
+
+    packages=find_packages('pytest-gitcov'),
+
+    install_requires=[
+        'pytest-cov',
+    ],
+
     entry_points={
-        "pytest11": ["gitcov = pytest-gitcov.pluginmodule"],
+        'pytest11': [
+            'pytest_gitcov = pytest_gitcov.plugin',
+        ]
     },
 
-    # custom PyPI classifier for pytest plugins
-    classifiers=["Framework :: Pytest"],
+    classifiers=[
+        # complete classifier list: http://pypi.python.org/pypi?%3Aaction=list_classifiers
+        'Development Status :: 1 - Planning',
+        'Framework :: Pytest',
+        'Intended Audience :: Developers',
+        'License :: OSI Approved :: MIT License',
+        'Natural Language :: English',
+        'Operating System :: POSIX :: Linux',
+        'Programming Language :: Python :: 3',
+        'Topic :: Software Development :: Testing',
+    ],
 )
