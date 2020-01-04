@@ -26,9 +26,9 @@ setup(
     author='David James McCorrie',
     author_email='djmccorrie@gmail.com',
 
-    url='https://github.com/machshev/pytest-git-coverage',
+    url='https://github.com/machshev/pytest-gitcov',
     description='Pytest plugin for reporting on coverage of the last git commit.',
-    long_description=read('../README.md'),
+    long_description=read('README.md'),
     long_description_content_type='text/markdown',
 
     packages=find_packages('pytest_gitcov'),

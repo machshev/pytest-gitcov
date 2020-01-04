@@ -10,6 +10,7 @@ setuptools-git-version = "*"
 ipython = "*"
 pytest = "*"
 pytest-cov = "*"
+twine = "*"
 
 [requires]
 python_version = "3.8"
