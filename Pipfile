@@ -12,6 +12,7 @@ pytest = "*"
 pytest-cov = "*"
 twine = "*"
 pylint = "*"
+ipdb = "*"
 
 [requires]
 python_version = "3.8"
