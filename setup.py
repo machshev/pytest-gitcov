@@ -31,7 +31,8 @@ setup(
     long_description=read('README.md'),
     long_description_content_type='text/markdown',
 
-    packages=find_packages('pytest_gitcov'),
+    packages=find_packages('src'),
+    package_dir={'': 'src'},
 
     install_requires=[
         'pytest-cov',
