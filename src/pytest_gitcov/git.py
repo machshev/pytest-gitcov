@@ -1,0 +1,38 @@
+"""Git wrapper
+"""
+import os
+import subprocess
+
+from typing import Iterable
+
+
+def files_in_commit(commit: str = 'HEAD') -> Iterable[str]:
+    """Generate a list of file modifed in a commit
+
+    If the commit id is not passed then the default is HEAD
+
+    Args:
+        commit (str): the ID of the commit to analyse
+
+    Yields:
+        str: path for each of the files with coverage by tests
+    """
+    output = subprocess.check_output([
+        'git',
+        'diff',
+        '--name-status',
+        f'{commit}..{commit}~1',
+    ])
+
+    for line in output.decode('utf-8').split('\n'):
+        if line == '':
+            break
+
+        path = line.split('\t')[-1]
+
+        if not path.endswith('.py'):
+            continue
+
+        abs_path = os.path.abspath(path)
+
+        yield abs_path
