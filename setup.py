@@ -20,7 +20,6 @@ def read(*names, **kwargs):
 setup(
     name='pytest-gitcov',
     version_format='{tag}.{commitcount}',
-    setup_requires=['setuptools-git-version'],
 
     licence='MIT',
     author='David James McCorrie',
@@ -34,8 +33,18 @@ setup(
     packages=find_packages('src'),
     package_dir={'': 'src'},
 
+    setup_requires=[
+        'setuptools-git-version',
+    ],
+
     install_requires=[
         'pytest-cov',
+        'coverage',
+    ],
+
+    tests_require=[
+        'pyhamcrest',
+        'unittest',
     ],
 
     entry_points={

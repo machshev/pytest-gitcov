@@ -1,7 +1,7 @@
-#!/usr/bin/bash
+#!/usr/bin/env python
+# -*- mode: python-mode -*-
 
-# -*- mode: shell-script -*-
+from pytest_gitcov.coverage import get_coverage_from_file
 
-files=$(git status -s | grep -v ^D | awk '{print $2 }')
 
-echo "$files"
+cov_data = get_coverage_from_file()
