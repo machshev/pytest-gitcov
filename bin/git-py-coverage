@@ -1,7 +1,29 @@
 #!/usr/bin/env python
 # -*- mode: python-mode -*-
+import time
 
 from pytest_gitcov.coverage import get_coverage_from_file
+from pytest_gitcov.coverage import get_coverage_timestamp
+from pytest_gitcov.coverage import files_covered
+
+from pytest_gitcov.git import files_in_commit
 
 
 cov_data = get_coverage_from_file()
+
+timestamp = get_coverage_timestamp(cov_data)
+time_str = time.ctime(timestamp)
+
+print(f'Coverage from tests run on ({time_str})')
+
+git_files = list(files_in_commit())
+cov_files = list(files_covered(cov_data))
+
+for path in git_files:
+    # TODO: remove files outside the project src i.e. tests, scripts
+
+    covered = False
+    if path in cov_files:
+        covered = True
+
+    print(covered, path)
