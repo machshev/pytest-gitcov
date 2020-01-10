@@ -2,28 +2,64 @@
 # -*- mode: python-mode -*-
 import time
 
-from pytest_gitcov.coverage import get_coverage_from_file
-from pytest_gitcov.coverage import get_coverage_timestamp
-from pytest_gitcov.coverage import files_covered
+from typing import (
+    Dict,
+    List,
+    Any,
+)
+
+from coverage import Coverage
+
+from pytest_gitcov.coverage import (
+    get_coverage_from_file,
+    get_coverage_timestamp,
+    get_coverage_run_source,
+    get_line_num_covered_for_file,
+    files_covered,
+)
 
 from pytest_gitcov.git import files_in_commit
 
 
+cov = Coverage()
+run_source = get_coverage_run_source(cov)
 cov_data = get_coverage_from_file()
 
 timestamp = get_coverage_timestamp(cov_data)
 time_str = time.ctime(timestamp)
 
-print(f'Coverage from tests run on ({time_str})')
+print('\ngit Coverage Report')
+print('-------------------')
 
-git_files = list(files_in_commit())
+print(f'Tests run on ({time_str})')
+
+git_files = list(files_in_commit('HEAD~1'))
 cov_files = list(files_covered(cov_data))
 
+covered_files: Dict[str, Any] = {}
+missing_files: List[str] = []
+
 for path in git_files:
-    # TODO: remove files outside the project src i.e. tests, scripts
-
-    covered = False
+    # Is the file in the coverage report
+    # Files outside coverage report are excluded
     if path in cov_files:
-        covered = True
+        covered_files[path] = []
+    else:
+        missing_files.append(path)
 
-    print(covered, path)
+if covered_files:
+    print('\nHas some coverage:')
+    for path in covered_files:
+        line_nums = get_line_num_covered_for_file(
+            cov_data=cov_data,
+            path=path,
+        )
+        print(path)
+        print(line_nums)
+
+if missing_files:
+    print('\nNo coverage data:')
+    for path in missing_files:
+        print(path)
+
+print('')

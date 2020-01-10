@@ -1,7 +1,3 @@
- 
-[paths]
-source = src/pytest_gitcov
-
 [run]
 branch = True
 source = src
