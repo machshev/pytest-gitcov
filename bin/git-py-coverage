@@ -19,7 +19,7 @@ parser = argparse.ArgumentParser(
 )
 parser.add_argument(
     'commit_id', nargs='?', type=str,
-    default='',
+    default=None,
     help=('commit id to get coverage against '
           '(default value is working tree)'),
 )
@@ -36,4 +36,5 @@ covered_files = calculate_commit_coverage(
 )
 
 report = generate_report(covered_files)
+
 print(report)
