@@ -1,8 +1,12 @@
 """Plugin to pytest to report on coverage for the code
 changed in the last commit.
 """
-
 from typing import TYPE_CHECKING
+
+from pytest_gitcov.report import (
+    calculate_commit_coverage,
+    generate_report,
+)
 
 if TYPE_CHECKING:
     from coverage import CoverageData
@@ -30,23 +34,11 @@ def get_coverage_from_cov_plugin(config) -> 'CoverageData':
 # TODO: add pytest option to give the commit dif details
 
 def pytest_terminal_summary(terminalreporter, config):
-    terminalreporter.write('HEY! This is GITCOV....\n')
-
     cov_data = get_coverage_from_cov_plugin(config)
 
-    # TODO: convert the following to an external function so it can be
-    # used from command line tool as well
+    covered_files = calculate_commit_coverage(
+        cov_data=cov_data,
+    )
 
-    # TODO: get list of files from commit
-    for filename in cov_data.measured_files():
-        # TODO: check the filename is in the commit range specified
-
-        # TODO: Rationalise this info into a simple line numbers list.
-        lines = cov_data.lines(filename)
-        arcs = cov_data.arcs(filename)
-
-        # TODO: Yield the information as a dict/tuple
-        # TODO: generic function to use the dict/tuple to compile report as str
-        terminalreporter.write(
-            f'{filename}\n{lines}:{arcs}\n\n',
-        )
+    report = generate_report(covered_files)
+    terminalreporter.write(report)

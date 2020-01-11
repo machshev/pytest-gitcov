@@ -1,65 +1,39 @@
 #!/usr/bin/env python
 # -*- mode: python-mode -*-
 import time
-
-from typing import (
-    Dict,
-    List,
-    Any,
-)
-
-from coverage import Coverage
+import argparse
 
 from pytest_gitcov.coverage import (
-    get_coverage_from_file,
+    get_coverage_data_from_file,
     get_coverage_timestamp,
-    get_coverage_run_source,
-    get_line_num_covered_for_file,
-    files_covered,
 )
 
-from pytest_gitcov.git import files_in_commit
+from pytest_gitcov.report import (
+    calculate_commit_coverage,
+    generate_report,
+)
 
+parser = argparse.ArgumentParser(
+    prog='get-py-coverage',
+    description=('Show coverage for the files you have changed')
+)
+parser.add_argument(
+    'commit_id', nargs='?', type=str,
+    default='',
+    help=('commit id to get coverage against '
+          '(default value is working tree)'),
+)
+args = parser.parse_args()
 
-cov = Coverage()
-run_source = get_coverage_run_source(cov)
-cov_data = get_coverage_from_file()
+cov_data = get_coverage_data_from_file()
 
 timestamp = get_coverage_timestamp(cov_data)
 time_str = time.ctime(timestamp)
 
-print('\ngit Coverage Report')
-print('-------------------')
+covered_files = calculate_commit_coverage(
+    cov_data=cov_data,
+    commit_id=args.commit_id,
+)
 
-print(f'Tests run on ({time_str})')
-
-git_files = list(files_in_commit('HEAD~1'))
-cov_files = list(files_covered(cov_data))
-
-covered_files: Dict[str, Any] = {}
-missing_files: List[str] = []
-
-for path in git_files:
-    # Is the file in the coverage report
-    # Files outside coverage report are excluded
-    if path in cov_files:
-        covered_files[path] = []
-    else:
-        missing_files.append(path)
-
-if covered_files:
-    print('\nHas some coverage:')
-    for path in covered_files:
-        line_nums = get_line_num_covered_for_file(
-            cov_data=cov_data,
-            path=path,
-        )
-        print(path)
-        print(line_nums)
-
-if missing_files:
-    print('\nNo coverage data:')
-    for path in missing_files:
-        print(path)
-
-print('')
+report = generate_report(covered_files)
+print(report)

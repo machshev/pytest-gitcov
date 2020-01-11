@@ -7,31 +7,12 @@ from typing import List
 from typing import Tuple
 from typing import TYPE_CHECKING
 
-from coverage import CoverageData
-
 if TYPE_CHECKING:
-    from coverage import Coverage
+    from coverage import CoverageData
 
 
-def get_coverage_run_source(coverage: 'Coverage') -> Tuple[str]:
-    """Get the run:source from coverage config
-
-    Args:
-        coverage (Coverage): coverage instace to query for
-            the configuration.
-
-    Returns:
-        list(str): list of the source directories coverage
-            is run against
-    """
-    return (
-        os.path.abspath(path)
-        for path
-        in coverage.get_option('run:source')
-    )
-
-
-def get_coverage_from_file(path: str = '.coverage') -> CoverageData:
+def get_coverage_data_from_file(
+        path: str = '.coverage') -> 'CoverageData':
     """Get the coverage data from a file
 
     Coverage is generally stored in a '.covarage' file in
@@ -46,6 +27,7 @@ def get_coverage_from_file(path: str = '.coverage') -> CoverageData:
     Returns:
         CoverageData: previously recorded test coverage
     """
+    from coverage import CoverageData
     cov_data = CoverageData(basename=path)
 
     assert cov_data, 'CoverageData is loaded'
@@ -53,7 +35,7 @@ def get_coverage_from_file(path: str = '.coverage') -> CoverageData:
     return cov_data
 
 
-def get_coverage_timestamp(cov_data: CoverageData) -> float:
+def get_coverage_timestamp(cov_data: 'CoverageData') -> float:
     """Get the time modified for the coverage data
 
     Args:
@@ -68,7 +50,7 @@ def get_coverage_timestamp(cov_data: CoverageData) -> float:
     return timestamp
 
 
-def files_covered(cov_data: CoverageData) -> Iterable[str]:
+def files_covered(cov_data: 'CoverageData') -> Iterable[str]:
     """Generate a list of file
 
     Args:
@@ -82,7 +64,7 @@ def files_covered(cov_data: CoverageData) -> Iterable[str]:
             yield path
 
 def get_line_num_covered_for_file(
-        cov_data: CoverageData,
+        cov_data: 'CoverageData',
         path: str
 ) -> List[int]:
     """Get a list of the line numbers covered for a given file
