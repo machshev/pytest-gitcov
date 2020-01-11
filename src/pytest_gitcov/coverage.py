@@ -29,6 +29,7 @@ def get_coverage_data_from_file(
     """
     from coverage import CoverageData
     cov_data = CoverageData(basename=path)
+    cov_data.read()
 
     assert cov_data, 'CoverageData is loaded'
 
