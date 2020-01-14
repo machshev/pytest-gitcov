@@ -12,17 +12,42 @@ Nice and easy:
 # Usage
 This is still in very early stages of development and doesn't really do much yet.
 
-After installing, the plugin is automatically found by pytest. At the moment that means that the plugin always runs with each `pytest` run and you have to uninstall to disable it. Soon there should be an extra argument that can be used to temporarily disable this. For example, respect the existing `pytest-cov` flag (`--no-cov`) as well as a new `--no-gitcov` flags.
+After installing, the plugin is automatically found by pytest. At the moment that means that the plugin always runs with each `pytest` run and you have to uninstall to disable it. Soon there should be an extra argument that can be used to temporarily disable this. For example, respect the existing `pytest-cov` flag (`--no-cov`) as well as a new `--no-gitcov` flag .
 
 There is also a standalone script available to generate a git coverage report on previous `.coverage` DB file, for more info see `git-py-coverage --help`. 
 
 # The plan
-So far it just dumps a report at the end of a test run. Report contains the raw info available in the .coverage file (SQLLite3 DB) prsed using the `coverage.CoverageData` proxy (https://coverage.readthedocs.io/en/coverage-5.0/api_coveragedata.html#coverage.CoverageData).
+The idea is to print a useful report to the terminal as the last output from pytest, at the end of a test run. This is achevied using a plugin for pytest.
 
-The plan is to use `git diff --name-status` or `git diff --name-only` to get a list of files changed. Then use `git blame` to get the lines with line numbers changed for each file in current commit (perhaps with some context as well +/- 3 lines, or maybe later a whole function).
+Once the coverage data has been generated with a run of `pytest`. Then it should also be possible to regenerage the report from a stand-alone script (currently `git-py-coverage`). This would use the same coverage data without having to rerun the tests, reporting against either the same commit range or a different commit range.
 
-Then show the lines in the commit that are not in the coverage report.
+## Coverage data
+When pytest_cov plugin initialises, it creates a coverage object (see the `Coverage` class from the `coverage` package). Pytest allows us to get the pytest_cov plugin object and from that we can access the `coverage.CoverageData` object (https://coverage.readthedocs.io/en/coverage-5.0/api_coveragedata.html#coverage.CoverageData) which is a proxy for SQLite3 DB where the coverage information gathered during the pytest run. This is stored by default in the `.coverage` file in the current working directory - i.e. where you ran pytest from.
 
-Outcome:
- - plugin for pytest that reports on current HEAD commit
- - stand-alone git-py-coverage script to run on the last .coverage report. This could be used to generate another report, against a differnt commit without having to run the tests again.
+We can get access to this coverage data by `coverage.CoverageData` proxy at any point later. Just point it to the relevant `.coverage` DB file, and call the `.read()` method to establish a connection.
+
+Coverage data is available per file as a list of line numbers per file. Although blank lines are not included, only lines that have been executed during the test run. Function signitures, docstrings, blank lines, and comments are not included in coverage line numbers list. However the line number of the first line of the function/method signiture and the line number of the return is available as a tuple pair refered to as an 'arc'.
+
+## Lines modified in a commit
+We need two things:
+ - list of files modified by the commit range - we can use `git diff --name-status` or `git diff --name-only` to get this.
+ - resulting line numbers - for this we can use `git blame` and return the line numbers with the commit hash we are interested in.
+
+It would be nice to be able to get all this information from one command, but can't find one.
+
+## Meaningfull coverage
+The line numbers from the coverage plugin are not meaningful on their own... there is no point reporting every blank line or comment that has not been 'executed'. We need to determine if the lines missed are due to branching statements, such as `if` statements, `break` or `continue` in loops, `assert` or `raise` statements that have triggered an exception... and so on.
+
+The easiest way of doing this would be to use the python source parser to inspect the file.
+
+### AST trees
+Using `ast.parse` we can get an AST tree of the source file. Iterating over the top level nodes in the module we can identify the line numbers at the start and end of each node (`.lineno` and `.end_lineno`). From this we can see which blocks of code our line numbers are contained in, as well as identify all the branch blocks and code that should have been executed in our tests.
+
+## Report
+For the report I'm currently thinking we would show the summary catagorised by file and function name. Command line args could be used to specify the scope of the reporting... just the functions modified, or all the functions in the file modified.
+
+For statements in a function that should have been covered, then give an idea of:
+ - scale of miss - line count (or AST node count?), perhaps as a percentage or both.
+ - reason for miss - branch due to return, loop breakout, or assertion.
+
+Overall score - where 100% would be every executable statement covered, 0% would be none covered.
